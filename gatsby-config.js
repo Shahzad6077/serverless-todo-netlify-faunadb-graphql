@@ -5,6 +5,31 @@
  */
 
 module.exports = {
+  siteMetadata: {
+    title: `Serverless Todo App`,
+    description: `Faunadb CRUD with netlify functions as a serverless functions.`,
+    author: `M Shahzad Ali`,
+  },
   /* Your site config here */
-  plugins: [],
+  plugins: [
+    `gatsby-plugin-react-helmet`,
+    {
+      // resolve: "gatsby-plugin-prefetch-google-fonts",
+      resolve: "gatsby-plugin-webfonts",
+      options: {
+        fonts: {
+          google: [
+            // {
+            //   family: "Montserrat",
+            //   variants: [`400`, `600`, `700`, `800`],
+            // },
+            {
+              family: "Quicksand",
+              variants: [`400`, `500`, `700`],
+            },
+          ],
+        },
+      },
+    },
+  ],
 }
