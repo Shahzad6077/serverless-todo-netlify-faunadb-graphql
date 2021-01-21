@@ -1,0 +1,9 @@
+type Todo {
+  userId: String!
+  text: String!
+  archived: Boolean
+}
+
+type Query {
+  allTodosById(userId: String!): [Todo!]!
+}

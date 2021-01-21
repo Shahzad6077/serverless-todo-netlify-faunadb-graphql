@@ -1,5 +1,6 @@
 import React, { FC, useEffect } from "react"
 import { SEO } from "../Components"
+import { Link } from "gatsby"
 import netlifyIdentity from "netlify-identity-widget"
 type Props = {}
 
@@ -14,8 +15,10 @@ const Index: FC<Props> = () => {
           console.log(netlifyIdentity.currentUser())
         }}
       >
-        Log In
+        Get user
       </button>
+      <Link to="/app">App</Link>
+      <Link to="/app/dashboard">Dashboard</Link>
     </div>
   )
 }

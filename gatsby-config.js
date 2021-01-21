@@ -19,10 +19,10 @@ module.exports = {
       options: {
         fonts: {
           google: [
-            // {
-            //   family: "Montserrat",
-            //   variants: [`400`, `600`, `700`, `800`],
-            // },
+            {
+              family: "Montserrat",
+              variants: [`400`, `600`, `700`, `800`],
+            },
             {
               family: "Quicksand",
               variants: [`400`, `500`, `700`],
@@ -30,6 +30,10 @@ module.exports = {
           ],
         },
       },
+    },
+    {
+      resolve: `gatsby-plugin-create-client-paths`,
+      options: { prefixes: [`/app/*`] },
     },
   ],
 }

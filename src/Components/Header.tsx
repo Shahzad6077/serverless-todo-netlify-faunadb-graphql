@@ -1,5 +1,5 @@
 import { Link } from "gatsby"
-import React, { FC } from "react"
+import React, { FC, Fragment } from "react"
 
 import { useAuthContext } from "./../Context/Auth"
 interface HeaderProps {
@@ -7,7 +7,7 @@ interface HeaderProps {
 }
 
 const Header: FC<HeaderProps> = ({ siteTitle }) => {
-  const { isAuthenticated, onLogout, onLogin } = useAuthContext()
+  const { isAuthenticated, onLogout, onLogin, onSignup } = useAuthContext()
   return (
     <header
       style={{
@@ -41,9 +41,14 @@ const Header: FC<HeaderProps> = ({ siteTitle }) => {
               Logout
             </button>
           ) : (
-            <button className="primary-btn" onClick={onLogin}>
-              Login
-            </button>
+            <Fragment>
+              <button className="primary-btn" onClick={onLogin}>
+                Login
+              </button>
+              <button className="primary-btn" onClick={onSignup}>
+                Signup
+              </button>
+            </Fragment>
           )}
         </ul>
       </div>
