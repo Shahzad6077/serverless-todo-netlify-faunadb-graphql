@@ -38,6 +38,7 @@ const ApolloServiceProvider: FC = ({ children }) => {
   useEffect(() => {
     const client = createClient(token)
     setClient(client)
+    console.log(token, "new User logined", client)
   }, [token])
 
   if (client === undefined) return <Fragment>{children}</Fragment>
