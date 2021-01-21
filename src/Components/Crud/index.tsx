@@ -1,176 +1,52 @@
 import React, { FC, useEffect, useState } from "react"
 import classes from "./crud.module.css"
-import {
-  CRUD_DATA,
-  CRUD_VARIENT,
-  READ_URL,
-  DELETE_URL,
-} from "./../../Types/crud.interface"
+import { TODO_DATA, TODO_VARIENT } from "./../../Types/todo.interface"
 import CreateComp from "./Create"
 import Item from "./Item"
-import toast from "react-hot-toast"
-
+import { useMutation, useQuery } from "@apollo/client"
+import { GET_ALL_TODO } from "../../Types/TodoQueries"
+import TodoItem from "./TodoItem"
 type Props = {}
-interface StateType extends CRUD_DATA {
-  loading: boolean
+interface StateType {
   error: null | string
-  currVarient: CRUD_VARIENT
+  currVarient: TODO_VARIENT
+  list: TODO_DATA[]
 
-  list: CRUD_DATA[]
+  id?: string
+  text: string
 }
 const DefaultValue: StateType = {
+  text: "",
   id: null,
-  name: "",
-  price: 0,
-  stock_qty: 0,
-  loading: false,
   error: null,
   currVarient: "CREATE",
   list: [],
 }
 const CrudComp: FC<Props> = () => {
+  const { data, loading, error } = useQuery(GET_ALL_TODO)
+
   const [state, setObjState] = useState<StateType>(DefaultValue)
   const setState = (obj: Partial<StateType>) =>
     setObjState(p => ({ ...p, ...obj }))
 
-  useEffect(() => {
-    getAllProducts()
-  }, [])
-  const listHandler = (data: CRUD_DATA, reason: CRUD_VARIENT) => {
-    let shallowList = [...state.list]
-    if (reason === "CREATE") {
-      shallowList.push(data)
-    } else if (reason === "UPDATE") {
-      shallowList = shallowList.map(o => {
-        if (o.id === data.id) {
-          return {
-            ...data,
-          }
-        } else {
-          return o
-        }
-      })
-    }
-
-    setState({
-      list: shallowList,
-      currVarient: "CREATE",
-      id: null,
-      name: "",
-      price: 0,
-      stock_qty: 0,
-    })
-  }
-  const getAllProducts = async () => {
-    try {
-      setState({ loading: true })
-      const response = await (await fetch(READ_URL)).json()
-      if (response?.result === "failed") {
-        setState({ error: response?.message || "There is something wrong." })
-      }
-
-      if (response?.result === "success") {
-        const arr = response.data || []
-        setState({ list: arr })
-      }
-    } catch (err) {
-      console.log(err, err?.body?.message)
-    } finally {
-      setState({ loading: false })
-    }
-  }
-  const onDeleteProducts = async (id: string) => {
-    try {
-      setState({ loading: true })
-      const response = await (
-        await fetch(DELETE_URL, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            docId: id,
-          }),
-        })
-      ).json()
-      if (response?.result === "failed") {
-        setState({
-          error: response?.message || "Item is not deleted, Try again latter..",
-        })
-      }
-
-      if (response?.result === "success") {
-        const filteredList = [...state.list].filter(o => o.id !== id)
-        setState({ list: filteredList })
-        toast("Item Deleted successfully", {
-          icon: "👏",
-          style: {
-            borderRadius: "10px",
-            background: "var(--purple)",
-            color: "#fff",
-          },
-        })
-      }
-    } catch (err) {
-      console.log(err, err?.body?.message)
-    } finally {
-      setState({ loading: false })
-    }
-  }
-  const onUpdateProducts = (data: CRUD_DATA) => {
-    setState({
-      id: data.id,
-      name: data.name,
-      price: data.price,
-      stock_qty: data.stock_qty,
-      currVarient: "UPDATE",
-    })
-  }
   return (
     <div className={classes.crudWrapper}>
       <CreateComp
         varient={state.currVarient}
         defaultValues={{
           id: state.id,
-          name: state.name,
-          price: state.price,
-          stock_qty: state.stock_qty,
+          text: state.text,
         }}
-        pushIntoList={listHandler}
       />
       <div className={classes.listWrapper}>
-        {state.loading ? (
+        {loading ? (
           <div>Loading...</div>
-        ) : !state.error ? (
-          state.list.map((data, i) => {
-            return (
-              <Item
-                key={data.id}
-                data={data}
-                actions={
-                  <div className={classes.actions}>
-                    <button
-                      className="primary-btn info-bg"
-                      type="button"
-                      onClick={() => onUpdateProducts(data)}
-                    >
-                      update
-                    </button>
-                    <button
-                      className="primary-btn t-bg warning-clr"
-                      type="button"
-                      onClick={() => onDeleteProducts(data.id)}
-                    >
-                      delete
-                    </button>
-                  </div>
-                }
-                activeId={state.id}
-              />
-            )
+        ) : !error ? (
+          data.getAllTodosById.map((data: TODO_DATA, i) => {
+            return <TodoItem key={data.id} {...data} />
           })
         ) : (
-          <p className="error">{`${state.error}`}</p>
+          <p className="error">{`${error.toString()}`}</p>
         )}
       </div>
     </div>

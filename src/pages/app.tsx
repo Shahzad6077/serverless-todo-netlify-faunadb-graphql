@@ -3,6 +3,7 @@ import React, { FC } from "react"
 import { Router, RouteComponentProps } from "@reach/router"
 import { useAuthContext } from "../Context/Auth"
 import { PrivateRoute } from "./../Utils"
+import { TodoComp } from "../Components"
 
 let Home = (props: RouteComponentProps) => {
   const { user, isAuthenticated } = useAuthContext()
@@ -16,6 +17,7 @@ let Home = (props: RouteComponentProps) => {
   return (
     <div>
       <h4>Welcome {user.full_name}</h4>
+      <TodoComp />
     </div>
   )
 }

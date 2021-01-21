@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "apollo-server-lambda": "^2.19.2",
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "faunadb": "^4.0.0"
   }
 }

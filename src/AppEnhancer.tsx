@@ -7,11 +7,13 @@ import ApolloServiceProvider from "./Services/ApolloServiceProvider"
 const Index: FC = ({ children }) => {
   return (
     <AuthProvider>
-      <Layout>
-        <ApolloServiceProvider>{children}</ApolloServiceProvider>
-        {/* {children} */}
-        <Toaster position="bottom-center" reverseOrder={false} />
-      </Layout>
+      <ApolloServiceProvider>
+        <Layout>
+          {children}
+          {/* {children} */}
+          <Toaster position="bottom-center" reverseOrder={false} />
+        </Layout>
+      </ApolloServiceProvider>
     </AuthProvider>
   )
 }

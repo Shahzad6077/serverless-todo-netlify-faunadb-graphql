@@ -1,3 +1,4 @@
+import { useApolloClient } from "@apollo/client"
 import { Link } from "gatsby"
 import React, { FC, Fragment } from "react"
 
@@ -8,6 +9,8 @@ interface HeaderProps {
 
 const Header: FC<HeaderProps> = ({ siteTitle }) => {
   const { isAuthenticated, onLogout, onLogin, onSignup } = useAuthContext()
+  // const client = useApolloClient()
+  const client = null
   return (
     <header
       style={{
@@ -37,7 +40,13 @@ const Header: FC<HeaderProps> = ({ siteTitle }) => {
         </h1>
         <ul>
           {isAuthenticated ? (
-            <button className="primary-btn" onClick={onLogout}>
+            <button
+              className="primary-btn"
+              onClick={() => {
+                onLogout()
+                client && client.resetStore()
+              }}
+            >
               Logout
             </button>
           ) : (

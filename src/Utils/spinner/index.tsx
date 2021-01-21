@@ -8,7 +8,7 @@ const loadingContainer = {
   justifyContent: "space-around",
 }
 
-const loadingCircle = {
+const loadingCircleStyle = {
   display: "block",
   width: "0.5rem",
   height: "0.5rem",
@@ -45,7 +45,14 @@ const loadingCircleTransition: Transition = {
   duration: 0.5,
 }
 
-export default function ThreeDotsWave() {
+type Props = {
+  color?: "LIGHT" | "DARK"
+}
+export default function ThreeDotsWave({ color = "DARK" }: Props) {
+  const loadingCircle = {
+    ...loadingCircleStyle,
+    ...(color === "DARK" && { backgroundColor: "var(--purple)" }),
+  }
   return (
     <motion.div
       style={loadingContainer}

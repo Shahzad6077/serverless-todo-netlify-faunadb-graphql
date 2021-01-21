@@ -1,73 +1,75 @@
 import React, { FC, useEffect, useState } from "react"
 import classes from "./crud.module.css"
-import {
-  CRUD_DATA,
-  CREATE_URL,
-  CRUD_VARIENT,
-  UPDATE_URL,
-} from "./../../Types/crud.interface"
+import { TODO_DATA, TODO_VARIENT } from "../../Types/todo.interface"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import crudSchema from "./../../Validations/crud"
+import todoSchema from "./../../Validations/todo"
 import { toast } from "react-hot-toast"
+import { useMutation, useApolloClient } from "@apollo/client"
+import { CREATE_TODO, GET_ALL_TODO } from "./../../Types/TodoQueries"
+import { Spinner } from "../../Utils"
 
 type Props = {
-  pushIntoList: (data: CRUD_DATA, varient: CRUD_VARIENT) => void
-  varient: CRUD_VARIENT
-  defaultValues: CRUD_DATA
+  varient: TODO_VARIENT
+  defaultValues: Omit<TODO_DATA, "userId">
 }
 
-const CreateComp: FC<Props> = ({ pushIntoList, varient, defaultValues }) => {
+const CreateComp: FC<Props> = ({ varient, defaultValues }) => {
+  const client = useApolloClient()
   const { register, errors, handleSubmit, reset, setValue } = useForm<
-    Omit<CRUD_DATA, "id">
+    Omit<TODO_DATA, "id" | "userId">
   >({
     defaultValues: defaultValues,
-    resolver: yupResolver(crudSchema),
+    resolver: yupResolver(todoSchema),
   })
+  const [onCreateTodo, { loading, data }] = useMutation(CREATE_TODO, {
+    onCompleted(data) {
+      toast("Todo is Archived.", {
+        icon: "🔥",
+        style: {
+          borderRadius: "10px",
+          background: "var(--purple)",
+          color: "#fff",
+        },
+      })
+    },
+    onError(err) {
+      console.log(err)
+    },
+    update(cache, { data }) {
+      // Query that fetches all existing to-do items
+      const query = GET_ALL_TODO
+
+      // Get the current to-do list
+      const existingData = client.readQuery({ query })
+
+      // Write back to the to-do list, appending the new item
+      client.writeQuery({
+        query,
+        data: {
+          getAllTodosById: [data.createTodo, ...existingData.getAllTodosById],
+        },
+      })
+    },
+  })
+
   const id = defaultValues.id
 
   useEffect(() => {
     if (id) {
-      setValue("name", defaultValues.name, { shouldValidate: true })
-      setValue("price", defaultValues.price, { shouldValidate: true })
-      setValue("stock_qty", defaultValues.stock_qty, { shouldValidate: true })
+      setValue("text", defaultValues.text, { shouldValidate: true })
     } else {
     }
   }, [id])
-
   const [err, setErr] = useState<null | string>(null)
 
-  const onSubmitForm: SubmitHandler<Omit<CRUD_DATA, "id">> = async data => {
+  const onSubmitForm: SubmitHandler<Omit<TODO_DATA, "userId">> = async data => {
     try {
-      const url: string = varient === "CREATE" ? CREATE_URL : UPDATE_URL
-      const response = await (
-        await fetch(url, {
-          method: "POST", // *GET, POST, PUT, DELETE, etc.
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: JSON.stringify({
-            ...data,
-            ...(varient === "UPDATE" && { docId: defaultValues.id }),
-          }),
-        })
-      ).json()
-      if (response?.result === "failed") {
-        setErr(response?.message)
-      }
-
-      if (response?.result === "success") {
-        toast.success(`Product ${varient.toLowerCase()} Successfully.`, {
-          style: {
-            borderRadius: "10px",
-            background: "#333",
-            color: "var(--white)",
-          },
-        })
-        pushIntoList(response.data, varient)
-        reset()
-      }
+      await onCreateTodo({
+        variables: { text: data.text },
+      })
+      reset()
+      toast("Todo is added.")
     } catch (err) {
       console.log(err.body.message)
     }
@@ -79,39 +81,34 @@ const CreateComp: FC<Props> = ({ pushIntoList, varient, defaultValues }) => {
         <span style={{ textTransform: "capitalize" }}>
           {varient.toLowerCase()}
         </span>{" "}
-        Product
+        Todo
       </h2>
       <div className={classes.formWrapper}>
         <form onSubmit={handleSubmit(onSubmitForm)}>
           <label htmlFor="p_name">Product Name</label>
           <input
             id="p_name"
-            name="name"
+            name="text"
             type="text"
             ref={register({ required: true })}
           />
-          {errors.name && <p className="error">{errors.name.message}</p>}
-          <label htmlFor="p_price">price</label>
-          <input
-            id="p_price"
-            name="price"
-            type="number"
-            ref={register({ required: true })}
-          />
-          {errors.price && <p className="error">{errors.price.message}</p>}
-          <label htmlFor="p_stock_qty">Stock Quantity</label>
-          <input
-            id="p_stock_qty"
-            name="stock_qty"
-            type="number"
-            ref={register({ required: true })}
-          />
-          {errors.stock_qty && (
-            <p className="error">{errors.stock_qty.message}</p>
-          )}
+          {errors.text && <p className="error">{errors.text.message}</p>}
+
           {/* <b r /> */}
-          <button type="submit" className="primary-btn">
-            {varient}
+
+          <button
+            type="submit"
+            className="primary-btn"
+            disabled={loading}
+            style={{
+              ...(loading && {
+                backgroundColor: "transparent",
+                display: "flex",
+                justifyContent: "center",
+              }),
+            }}
+          >
+            {loading ? <Spinner /> : varient}
           </button>
         </form>
         {err && <p className="error">{err}</p>}
