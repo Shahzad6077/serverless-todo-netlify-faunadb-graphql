@@ -8,17 +8,7 @@ const Index: FC<Props> = () => {
   return (
     <div>
       <SEO title="Home" />
-      <button
-        className="primary-btn"
-        onClick={() => {
-          // netlifyIdentity.open()
-          console.log(netlifyIdentity.currentUser())
-        }}
-      >
-        Get user
-      </button>
-      <Link to="/app">App</Link>
-      <Link to="/app/dashboard">Dashboard</Link>
+      Todo appp
     </div>
   )
 }
