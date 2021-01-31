@@ -85,7 +85,7 @@ const CreateComp: FC<Props> = ({ varient, defaultValues }) => {
       </h2>
       <div className={classes.formWrapper}>
         <form onSubmit={handleSubmit(onSubmitForm)}>
-          <label htmlFor="p_name">Product Name</label>
+          <label htmlFor="p_name">Title</label>
           <input
             id="p_name"
             name="text"
